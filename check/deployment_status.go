@@ -7,7 +7,7 @@ import (
 	"k8s.io/kubernetes/pkg/apis/extensions"
 )
 
-type DeploymentHealth struct {
+type DeploymentStatus struct {
 	BaseCheck
 	warnLevel   *float32
 	critLevel   *float32
@@ -15,9 +15,9 @@ type DeploymentHealth struct {
 	commandLine *flag.FlagSet
 }
 
-//NewDeploymentHealth creates a new deployment health check
-func NewDeploymentHealth(config CheckConfig) (Check, error) {
-	dh := DeploymentHealth{}
+//NewDeploymentStatus creates a new deployment health check
+func NewDeploymentStatus(config CheckConfig) (Check, error) {
+	dh := DeploymentStatus{}
 	dh.Config = config
 
 	// process flags
@@ -39,18 +39,18 @@ func NewDeploymentHealth(config CheckConfig) (Check, error) {
 	return &dh, nil
 }
 
-func (dh *DeploymentHealth) Usage() CheckUsage {
+func (dh *DeploymentStatus) Usage() CheckUsage {
 	return CheckUsage{
-		Description: `Checks deployment pod levels via status info provided by Kubernetes. Provides full deployment status object in result output`,
+		Description: `Checks deployment pod levels via status obj given by Kubernetes. Provides full deployment status object in result output`,
 		Flags: dh.commandLine.FlagUsages(),
 	}
 }
 
-func (dh *DeploymentHealth) Update(resource interface{}) {
+func (dh *DeploymentStatus) Update(resource interface{}) {
 	dh.deployment = resource.(*extensions.Deployment)
 }
 
-func (dh *DeploymentHealth) Execute() (CheckResult, error) {
+func (dh *DeploymentStatus) Execute() (CheckResult, error) {
 	res := NewCheckResultFromConfig(dh.Config)
 
 	status := dh.deployment.Status
@@ -71,5 +71,5 @@ func (dh *DeploymentHealth) Execute() (CheckResult, error) {
 
 // register factory
 func init() {
-	RegisterCheck("deployment_health", NewDeploymentHealth, []string{"deployment"})
+	RegisterCheck("deployment_status", NewDeploymentStatus, []string{"deployment"})
 }

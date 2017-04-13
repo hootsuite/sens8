@@ -21,4 +21,4 @@ tag-push-latest: ## tag the current version as latest and push
 	docker push $(IMAGE):latest
 
 test: ## run tests & coverage
-	go test -v -cover .
+	go test -v -cover $$(go list ./... | grep -v /vendor/)

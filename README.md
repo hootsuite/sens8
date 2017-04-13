@@ -49,12 +49,12 @@ Check Schema
 
 Checks are defined in the annotation `hootsuite.com/sensu-checks` of a given resource as a json array check objects. The check format is same as Sensu's [check configuration](https://sensuapp.org/docs/0.29/reference/checks.html#check-attributes) minus some fields being ignored. Refer to Sensu's [check definition specification](https://sensuapp.org/docs/0.29/reference/checks.html#check-definition-specification) as a guide.
 
-| field       | type    | required | example                             |description |
-|-------------|---------|----------|-------------------------------------|------------|
-| name        | string  | *        | `my_check`                          | Name of the check. Must be unique to the resource it's running on. See [Check naming](https://sensuapp.org/docs/0.29/reference/checks.html#check-names) |
-| command     | string  | *        | `deployment_health --tolerance 0.8` | Check to run. The first thunk of the string is the check id. All other parameters get parsed depended on the check itself. Environment variables and backticks (sub-shells) are interpolated |
-| interval    | int     | *        | `30`                                | Interval in seconds to run the check |
-| deregister  | bool    |          | `true`                              | Deregister the proxy client sensu on resource deletion or annotation removal. Default value is dependant on resource type. Pod: true, Deployment: false |
+| field       | type    | required | example                                   |description |
+|-------------|---------|----------|-------------------------------------------|------------|
+| name        | string  | *        | `my_check`                                | Name of the check. Must be unique to the resource it's running on. See [Check naming](https://sensuapp.org/docs/0.29/reference/checks.html#check-names) |
+| command     | string  | *        | `deployment_status --warn 0.9 --crit 0.8` | Check to run. The first thunk of the string is the check id. All other parameters get parsed depended on the check itself. Environment variables and backticks (sub-shells) are interpolated |
+| interval    | int     | *        | `30`                                      | Interval in seconds to run the check |
+| deregister  | bool    |          | `true`                                    | Deregister the proxy client sensu on resource deletion or annotation removal. Default value is dependant on resource type. Pod: true, Deployment: false |
 
 All other (arbitrary) fields get passed along with the check result in the same way Sensu client proper does.
 
@@ -73,8 +73,8 @@ Check results will be registered/de-registered with the following template:
 ```json
 [
   {
-    "name": "deployment_health",
-    "command": "deployment_health --tolerance 0.8",
+    "name": "deployment_status",
+    "command": "deployment_status --warn 0.9 --crit 0.8",
     "interval": 60,
     "deregister": true,
     "foo": "bar"
@@ -88,8 +88,8 @@ For the given check example above, the check result to Sensu might look like:
 ```json
 [
   {
-    "name": "deployment_health",
-    "command": "deployment_health --tolerance 0.8",
+    "name": "deployment_status",
+    "command": "deployment_status --warn 0.9 --crit 0.8",
     "interval": 60,
     "deregister": true,
     "foo": "bar",
@@ -130,13 +130,13 @@ metadata:
     hootsuite.com/sensu-checks: |-
       [
         {
-          "name": "deployment_health",
-          "command": "deployment_health --tolerance 0.8",
+          "name": "deployment_status",
+          "command": "deployment_status --warn 0.9 --crit 0.8",
           "interval": 60,
           "occurrences": 3,
           "refresh": 900,
           "handlers": ["default"],
-          "pager_team": "team_production_delivery",
+          "pager_team": "production_engineering",
           "documentation": "http://example.com/runbook.html",
           "deregister": true
         }
@@ -179,7 +179,7 @@ Checks
 Get latest check help via: `./sens8 -check-help`
 
 
-### `deployment_health`
+### `deployment_status`
 
 **Resources**: deployment
 
