@@ -90,7 +90,7 @@ func parseCheckConfig(item map[string]interface{}, checkSource string, resourceT
 		return check, fmt.Errorf("check command must not be empty")
 	}
 	if config.Interval <= 0 {
-		return check, fmt.Errorf("check interval must not be empty and > 0")
+		return check, fmt.Errorf("check interval must be non-empty and > 0")
 	}
 
 	// parse command -> argv

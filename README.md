@@ -2,13 +2,13 @@
 
 **Sensu + K8s**
 
-A Kubernetes controller that watches cluster resources (`Deployment`, `Pod` etc.) and runs Sensu checks which are declared in the resource's annotations. For each of the check definitions it will run them at the specified interval updating the checks with the latest resource info provided by Kubernetes. It communicates directly to Sensu's RabbitMQ endpoint dynamically adding Sensu [proxy clients](https://sensuapp.org/docs/latest/reference/clients.html#proxy-clients) and optionally removing them on resource deletion or annotation update.   
+A Kubernetes controller that watches cluster resources (`Deployment`, `Pod` etc.) and runs Sensu checks which are declared in the resource's annotations. For each of the check definitions it will run them at the specified interval, updating the checks with the latest resource info provided by Kubernetes. It communicates directly to Sensu's RabbitMQ endpoint, dynamically adding Sensu [proxy clients](https://sensuapp.org/docs/latest/reference/clients.html#proxy-clients) and optionally removing them on resource deletion or annotation update.   
 
-Sens8 effectively acts a Sensu super client. It allows for checks to be run on ephemeral resources such as a pod under a replicaset without having to sidecar the heavy Sensu ruby client, or restart it. By having checks defined in the resources themselves it gives teams greater autonomy and lets checks be pushed out via CD. It also prevents having to manage resource level checks out of band via configuration management. 
+Sens8 effectively acts a Sensu super client. It allows for checks to be run on ephemeral resources such as a pod under a replicaset without having to sidecar the heavy Sensu ruby client, or restart it. By having checks defined in the resources themselves it gives teams greater autonomy and lets checks be pushed out via CD. It also prevents having to manage resource-level checks out of band via configuration management. 
 
-Unlike a traditional setup where Sensu's client is installed with check scripts, only a predefined number of checks are supportd (ie, only check definitions are allowed in the annotations). Refer to the [check command documentation](check-commands.md) for what is valid for each resource. Most checks are intended to be run over the network - like making an http request to a pod. For resources such as deployments, only checks based on the status provided by Kubernetes are possible.
+Unlike a traditional setup where Sensu's client is installed with check scripts, only a predefined number of checks are supported (i.e., only check definitions are allowed in the annotations). Refer to the [check command documentation](check-commands.md) for what is valid for each resource. Most checks are intended to be run over the network - like making an http request to a pod. For resources such as deployments, only checks based on the status provided by Kubernetes are possible.
        
-A keepalive is run for Sens8 itself, and only itself since all other checks register under proxy clients. Given its super client nature it's advised to set up alerting/paging appropriately.   
+A keepalive is run for Sens8 itself, and only itself, since all other checks register under proxy clients. Given its super client nature it's advised to set up alerting/paging appropriately.   
 
 ### Build
 
@@ -23,7 +23,7 @@ Refer to `kubernetes.yml` for an example deployment + config
 ### Limitations
 
 * Only RabbitMQ transport is supported (no Redis)
-* If Sens8 crashes all checks that have a ttl will alert
+* If Sens8 crashes, all checks that have a ttl will alert
 * Subscriptions are ignored
 * Only checks are run. No metrics 
 * Certain resources types such `Deployment` have a limited feature set and only alert of the status provided by Kubernetes. 
@@ -52,15 +52,15 @@ Checks are defined in the annotation `hootsuite.com/sensu-checks` of a given res
 | field       | type    | required | example                                   |description |
 |-------------|---------|----------|-------------------------------------------|------------|
 | name        | string  | *        | `my_check`                                | Name of the check. Must be unique to the resource it's running on. See [Sensu's check naming](https://sensuapp.org/docs/0.29/reference/checks.html#check-names) |
-| command     | string  | *        | `deployment_status --warn 0.9 --crit 0.8` | Check to run. The first thunk of the string is the check id. All other parameters get parsed by the check itself. Environment variables and backticks (sub-shells) are interpolated. Refer to the [check command documentation](check-commands.md) for valid checks that can be run on the give resource |
-| interval    | int     | *        | `30`                                      | Interval in seconds to run the check |
+| command     | string  | *        | `deployment_status --warn 0.9 --crit 0.8` | Check to run. The first chunk of the string is the check id. All other parameters get parsed by the check itself. Environment variables and backticks (sub-shells) are interpolated. Refer to the [check command documentation](check-commands.md) for valid checks that can be run on the given resource |
+| interval    | int     | *        | `30`                                      | Interval in seconds between checks |
 | deregister  | bool    |          | `true`                                    | Deregister the proxy client sensu on resource deletion or annotation removal. Default value is dependant on resource type. Pod: true, Deployment: false |
 
 All other (arbitrary) fields get passed along with the check result in the same way Sensu client proper does.
 
 Check results will be registered/de-registered with the following template:  
 
-| Resource   | Source (client name)                     | Derregister default |
+| Resource   | Source (client name)                     | Deregister default |
 |------------|------------------------------------------|---------|
 | Deployment | `deployment-name.deployment.namespace`   | `false` | 
 | Pod        | `pod-name.pod.namespace`                 | `true` | 
