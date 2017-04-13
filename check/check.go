@@ -241,10 +241,13 @@ func NewCheck(config CheckConfig, resourceType string) (Check, error) {
 	return item.factory(config)
 }
 
-func init() {
-	argParser = shellwords.NewParser()
-	argParser.ParseBacktick = true
-	argParser.ParseEnv = true
+// CheckFactoryIds gets the list of registered check ids
+func CheckFactoryIds() []string {
+	i := []string{}
+	for k := range checkFactories {
+		i = append(i, k)
+	}
+	return i
 }
 
 type CheckUsage struct {
@@ -253,6 +256,7 @@ type CheckUsage struct {
 	Flags       string
 }
 
+// Docs gets the help docs for all registered checks
 func Docs() map[string]CheckUsage {
 	u := make(map[string]CheckUsage)
 	for name, factory := range checkFactories {
@@ -269,4 +273,10 @@ func Docs() map[string]CheckUsage {
 		u[name] = usage
 	}
 	return u
+}
+
+func init() {
+	argParser = shellwords.NewParser()
+	argParser.ParseBacktick = true
+	argParser.ParseEnv = true
 }

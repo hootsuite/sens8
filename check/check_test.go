@@ -1,6 +1,7 @@
 package check_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 	"encoding/json"
@@ -57,6 +58,13 @@ func NewTestCheck(config check.CheckConfig) (check.Check, error) {
 	c := TestCheck{}
 	c.Config = config
 	return &c, nil
+}
+
+func (c *TestCheck) Usage() check.CheckUsage {
+	return check.CheckUsage{
+		Description: "description",
+		Flags: "flags",
+	}
 }
 
 func (c *TestCheck) Update(resource interface{}) {}
@@ -227,3 +235,27 @@ func TestCheckResult_JsonResponse(t *testing.T) {
 	require.IsType(map[string]interface{}{}, s["check"])
 	assert.Equal(s["check"].(map[string]interface{})["name"], "test_name")
 }
+
+func TestDocsComplete(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	d := check.Docs()
+	require.True(len(d) > 0, "docs should be non empty")
+	ids := check.CheckFactoryIds()
+	for _, id := range ids {
+		_, exists := d[id]
+		assert.True(exists, fmt.Sprintf("doc missing for %s", id))
+	}
+}
+
+func TestDocsValid(t *testing.T) {
+	assert := assert.New(t)
+	d := check.Docs()
+	for id, doc := range d{
+		assert.NotEmpty(doc.Resources, fmt.Sprintf("%s has empty resources", id))
+		assert.NotEmpty(doc.Flags, fmt.Sprintf("%s has empty flags", id))
+		assert.NotEmpty(doc.Description, fmt.Sprintf("%s has empty description", id))
+	}
+}
+
