@@ -183,10 +183,11 @@ Get latest check help via: `./sens8 -check-help`
 
 **Resources**: deployment
 
-Checks deployment pod levels via status info provided by Kubernetes
+Checks deployment pod levels via status info provided by Kubernetes. Provides full deployment status object in result output
 
 ```
-      --tolerance value   health tolerance (default 0.8)
+  -c, --crit value   Percent of healthy pods to alert critical at (default 0.8)
+  -w, --warn value   Percent of healthy pods to warn at (default 0.9)
 
 ```
 
@@ -198,6 +199,6 @@ Make an http request to the pod or service and check the status returned in the 
 Example: `hs_healthcheck url=http://:::POD_IP::::8080/status/dependencies`
 
 ```
-      --url string   url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CUSTER_IP::: gets replaced by the service's ip
+  -u, --url string   url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CUSTER_IP::: gets replaced by the service's ip
 
 ```
