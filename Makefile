@@ -22,3 +22,6 @@ tag-push-latest: ## tag the current version as latest and push
 
 test: ## run tests & coverage
 	go test -v -cover $$(go list ./... | grep -v /vendor/)
+
+docs: ## generate check command docs
+	go run sens8.go -check-commands-md > check-commands.md

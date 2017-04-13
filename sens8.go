@@ -21,22 +21,20 @@ import (
 
 var (
 	sensuConfigFile *string = flag.String("config-file", "/etc/sensu/config.json", "Sensu configuration file. Same format as Sensu proper")
-	checkHelp *bool = flag.Bool("check-help", false, "Print documentation for all checks and exit")
-	checkHelpFormat *string = flag.String("check-help-format", "text", `Format to print check help. Options: text, markdown`)
+	checkCommands *bool = flag.Bool("check-commands", false, "Print documentation for all check commands and exit")
+	checkCommandsMd *bool = flag.Bool("check-commands-md", false, "Print documentation for all checks commands in markdown format and exit (indended for publishing docs)")
 )
 
 func main() {
 	flag.Parse()
 
-	if *checkHelp {
-		switch *checkHelpFormat {
-		case "text": printCheckHelpText()
-		case "markdown": printCheckHelpMarkdown()
-		default:
-			fmt.Fprintln(os.Stderr, "Invalid check help format")
-			flag.Usage()
-			os.Exit(1)
-		}
+	if *checkCommands {
+		printCheckCommandHelpText()
+		os.Exit(0)
+	}
+
+	if *checkCommandsMd {
+		printCheckCommandMarkdown()
 		os.Exit(0)
 	}
 
@@ -108,7 +106,7 @@ func main() {
 	glog.Flush()
 }
 
-func printCheckHelpText() {
+func printCheckCommandHelpText() {
 	for name, usage := range check.Docs() {
 		fmt.Println(name)
 		fmt.Println(util.PadRight("", "=", len(name)))
@@ -118,7 +116,10 @@ func printCheckHelpText() {
 	}
 }
 
-func printCheckHelpMarkdown() {
+func printCheckCommandMarkdown() {
+	fmt.Printf("Checks Commands\n===============\n\n")
+	fmt.Printf("Get latest docs via: `./sens8 -check-commands`\n\n")
+
 	for name, usage := range check.Docs() {
 		fmt.Printf("### `%s`\n\n", name)
 		fmt.Printf("**Resources**: %s\n\n", strings.Join(usage.Resources, ", "))

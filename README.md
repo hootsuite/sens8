@@ -6,7 +6,7 @@ A Kubernetes controller that watches cluster resources (`Deployment`, `Pod` etc.
 
 Sens8 effectively acts a Sensu super client. It allows for checks to be run on ephemeral resources such as a pod under a replicaset without having to sidecar the heavy Sensu ruby client, or restart it. By having checks defined in the resources themselves it gives teams greater autonomy and lets checks be pushed out via CD. It also prevents having to manage resource level checks out of band via configuration management. 
 
-Unlike a traditional setup where Sensu's client is installed with check scripts, only a predefined number of checks are supportd (ie, only check definitions are allowed in the annotations). Refer to the check schema below for valid check types for each resource. Most checks are intended to be run over the network - like making an http request to a pod. For resources such as deployments, only checks based on the status provided by Kubernetes are possible.
+Unlike a traditional setup where Sensu's client is installed with check scripts, only a predefined number of checks are supportd (ie, only check definitions are allowed in the annotations). Refer to the [check command documentation](check-commands.md) for what is valid for each resource. Most checks are intended to be run over the network - like making an http request to a pod. For resources such as deployments, only checks based on the status provided by Kubernetes are possible.
        
 A keepalive is run for Sens8 itself, and only itself since all other checks register under proxy clients. Given its super client nature it's advised to set up alerting/paging appropriately.   
 
@@ -47,12 +47,12 @@ Refer to `kubernetes.yml` for an example deployment + config
 Check Schema
 ============
 
-Checks are defined in the annotation `hootsuite.com/sensu-checks` of a given resource as a json array check objects. The check format is same as Sensu's [check configuration](https://sensuapp.org/docs/0.29/reference/checks.html#check-attributes) minus some fields being ignored. Refer to Sensu's [check definition specification](https://sensuapp.org/docs/0.29/reference/checks.html#check-definition-specification) as a guide.
+Checks are defined in the annotation `hootsuite.com/sensu-checks` of a given resource as a json array check objects. The check format is same as [Sensu's check configuration](https://sensuapp.org/docs/0.29/reference/checks.html#check-attributes) minus some fields being ignored. Refer to Sensu's [check definition specification](https://sensuapp.org/docs/0.29/reference/checks.html#check-definition-specification) as a guide.
 
 | field       | type    | required | example                                   |description |
 |-------------|---------|----------|-------------------------------------------|------------|
-| name        | string  | *        | `my_check`                                | Name of the check. Must be unique to the resource it's running on. See [Check naming](https://sensuapp.org/docs/0.29/reference/checks.html#check-names) |
-| command     | string  | *        | `deployment_status --warn 0.9 --crit 0.8` | Check to run. The first thunk of the string is the check id. All other parameters get parsed depended on the check itself. Environment variables and backticks (sub-shells) are interpolated |
+| name        | string  | *        | `my_check`                                | Name of the check. Must be unique to the resource it's running on. See [Sensu's check naming](https://sensuapp.org/docs/0.29/reference/checks.html#check-names) |
+| command     | string  | *        | `deployment_status --warn 0.9 --crit 0.8` | Check to run. The first thunk of the string is the check id. All other parameters get parsed by the check itself. Environment variables and backticks (sub-shells) are interpolated. Refer to the [check command documentation](check-commands.md) for valid checks that can be run on the give resource |
 | interval    | int     | *        | `30`                                      | Interval in seconds to run the check |
 | deregister  | bool    |          | `true`                                    | Deregister the proxy client sensu on resource deletion or annotation removal. Default value is dependant on resource type. Pod: true, Deployment: false |
 
@@ -102,7 +102,7 @@ For the given check example above, the check result to Sensu might look like:
 
 ## Defaults
 
-It is possible to set defaults for all checks in Sens8's `-config-file` config. Arbitrary fields are respected, but any field defined in the check will override. It is also possible to set a default for the required `interval`. Example:
+It is possible to set defaults for all checks in Sens8's `-config-file` config. Arbitrary fields are respected, but any field defined in the check will override it. It is also possible to set a default for the required `interval`. Example:
 
 ```json
 {
@@ -173,32 +173,13 @@ spec:
 ```
 
 
-Checks
-======
+Checks Commands
+===============
 
-Get latest check help via: `./sens8 -check-help`
+Each resource is limited to a subset of commands that can be run against it.
 
+[Check Command Documentation](check-commands.md)
 
-### `deployment_status`
+_or_
 
-**Resources**: deployment
-
-Checks deployment pod levels via status info provided by Kubernetes. Provides full deployment status object in result output
-
-```
-  -c, --crit value   Percent of healthy pods to alert critical at (default 0.8)
-  -w, --warn value   Percent of healthy pods to warn at (default 0.9)
-
-```
-
-### `hs_healthcheck`
-
-**Resources**: pod, service
-
-Make an http request to the pod or service and check the status returned in the following format: https://hootsuite.github.io/health-checks-api/#status-aggregate-get.
-Example: `hs_healthcheck url=http://:::POD_IP::::8080/status/dependencies`
-
-```
-  -u, --url string   url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CUSTER_IP::: gets replaced by the service's ip
-
-```
+Get latest docs via: `./sens8 -check-commands`
