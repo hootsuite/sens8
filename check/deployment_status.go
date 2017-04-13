@@ -35,7 +35,7 @@ func NewDeploymentStatus(config CheckConfig) (Check, error) {
 		return &dh, fmt.Errorf("--warn must be > 0 and <= 1")
 	}
 	if *dh.critLevel <= float32(0) || *dh.critLevel > float32(1) {
-		return &dh, fmt.Errorf("--cirt must be > 0 and <= 1")
+		return &dh, fmt.Errorf("--crit must be > 0 and <= 1")
 	}
 
 	return &dh, nil
