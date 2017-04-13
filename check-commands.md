@@ -8,10 +8,12 @@ Get latest docs via: `./sens8 -check-commands`
 **Resources**: deployment
 
 Checks deployment pod levels via status obj given by Kubernetes. Provides full deployment status object in result output
+Example: `deployment_status -w 0.8 -c 0.6`
 
 ```
-  -c, --crit value   Percent of healthy pods to alert critical at (default 0.8)
-  -w, --warn value   Percent of healthy pods to warn at (default 0.9)
+  -c, --crit value                      Percent of healthy pods to alert critical at (default 0.8)
+  -m, --min-configured-replicas value   Alert if a deployment gets configured with a replica count below X. Often users 'suspend' a service by setting 'replicas: 0'. Intended as a simple safeguard
+  -w, --warn value                      Percent of healthy pods to warn at (default 0.9)
 
 ```
 

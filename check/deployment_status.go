@@ -11,6 +11,7 @@ type DeploymentStatus struct {
 	BaseCheck
 	warnLevel   *float32
 	critLevel   *float32
+	minReplicas *int32
 	deployment  *extensions.Deployment
 	commandLine *flag.FlagSet
 }
@@ -24,6 +25,7 @@ func NewDeploymentStatus(config CheckConfig) (Check, error) {
 	commandLine := flag.NewFlagSet(config.Id, flag.ContinueOnError)
 	dh.warnLevel = commandLine.Float32P("warn", "w", 0.9, "Percent of healthy pods to warn at")
 	dh.critLevel = commandLine.Float32P("crit", "c", 0.8, "Percent of healthy pods to alert critical at")
+	dh.minReplicas = commandLine.Int32P("min-configured-replicas", "m", 0, "Alert if a deployment gets configured with a replica count below X. Often users 'suspend' a service by setting 'replicas: 0'. Intended as a simple safeguard")
 	err := commandLine.Parse(config.Argv[1:])
 	dh.commandLine = commandLine
 	if err != nil {
@@ -40,8 +42,10 @@ func NewDeploymentStatus(config CheckConfig) (Check, error) {
 }
 
 func (dh *DeploymentStatus) Usage() CheckUsage {
+	d := "Checks deployment pod levels via status obj given by Kubernetes. Provides full deployment status object in result output\n"
+	d += "Example: `deployment_status -w 0.8 -c 0.6`"
 	return CheckUsage{
-		Description: `Checks deployment pod levels via status obj given by Kubernetes. Provides full deployment status object in result output`,
+		Description: d,
 		Flags: dh.commandLine.FlagUsages(),
 	}
 }
@@ -63,8 +67,13 @@ func (dh *DeploymentStatus) Execute() (CheckResult, error) {
 		res.Status = WARN
 	}
 
+	if *dh.minReplicas > 0 && *dh.minReplicas > dh.deployment.Spec.Replicas {
+		res.Status = CRITICAL
+		res.Output = fmt.Sprintf("Replicas configured to %s\n", dh.deployment.Spec.Replicas)
+	}
+
 	o, _ := json.MarshalIndent(status, "", "  ")
-	res.Output = string(o)
+	res.Output += string(o)
 
 	return res, nil
 }
