@@ -183,3 +183,7 @@ Each resource is limited to a subset of commands that can be run against it.
 _or_
 
 Get latest docs via: `./sens8 -check-commands`
+
+### Maintainers
+
+* :octocat: [Mark Eijsermans](https://github.com/markeijsermans)
