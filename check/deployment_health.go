@@ -9,8 +9,9 @@ import (
 
 type DeploymentHealth struct {
 	BaseCheck
-	tolerance  *float32
-	deployment *extensions.Deployment
+	tolerance   *float32
+	deployment  *extensions.Deployment
+	commandLine *flag.FlagSet
 }
 
 //NewDeploymentHealth creates a new deployment health check
@@ -22,7 +23,15 @@ func NewDeploymentHealth(config CheckConfig) (Check, error) {
 	commandLine := flag.NewFlagSet(config.Id, flag.ContinueOnError)
 	dh.tolerance = commandLine.Float32("tolerance", 0.8, "health tolerance")
 	err := commandLine.Parse(config.Argv[1:])
+	dh.commandLine = commandLine
 	return &dh, err
+}
+
+func (dh *DeploymentHealth) Usage() CheckUsage {
+	return CheckUsage{
+		Description: `Checks deployment pod levels via status info provided by Kubernetes`,
+		Flags: dh.commandLine.FlagUsages(),
+	}
 }
 
 func (dh *DeploymentHealth) Update(resource interface{}) {

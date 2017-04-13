@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 	"flag"
+	"strings"
 	"github.com/golang/glog"
 	"k8s.io/kubernetes/pkg/client/restclient"
 	"k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
@@ -15,14 +16,29 @@ import (
 	"github.com/hootsuite/sens8/client"
 	"github.com/hootsuite/sens8/controller"
 	"github.com/hootsuite/sens8/check"
+	"github.com/hootsuite/sens8/util"
 )
 
 var (
 	sensuConfigFile *string = flag.String("config-file", "/etc/sensu/config.json", "Sensu configuration file. Same format as Sensu proper")
+	checkHelp *bool = flag.Bool("check-help", false, "Print documentation for all checks and exit")
+	checkHelpFormat *string = flag.String("check-help-format", "text", `Format to print check help. Options: text, markdown`)
 )
 
 func main() {
 	flag.Parse()
+
+	if *checkHelp {
+		switch *checkHelpFormat {
+		case "text": printCheckHelpText()
+		case "markdown": printCheckHelpMarkdown()
+		default:
+			fmt.Fprintln(os.Stderr, "Invalid check help format")
+			flag.Usage()
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
 
 	// global stop channel - for all controllers & informers
 	stopCh := make(chan struct{})
@@ -91,3 +107,23 @@ func main() {
 	time.Sleep(2 * time.Second)
 	glog.Flush()
 }
+
+func printCheckHelpText() {
+	for name, usage := range check.Docs() {
+		fmt.Println(name)
+		fmt.Println(util.PadRight("", "=", len(name)))
+		fmt.Printf("Resources: %s\n", strings.Join(usage.Resources, ", "))
+		fmt.Printf("%s\n\n", usage.Description)
+		fmt.Printf("%s\n\n", usage.Flags)
+	}
+}
+
+func printCheckHelpMarkdown() {
+	for name, usage := range check.Docs() {
+		fmt.Printf("### `%s`\n\n", name)
+		fmt.Printf("**Resources**: %s\n\n", strings.Join(usage.Resources, ", "))
+		fmt.Printf("%s\n\n", usage.Description)
+		fmt.Printf("```\n%s\n```\n\n", usage.Flags)
+	}
+}
+

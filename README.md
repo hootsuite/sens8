@@ -176,36 +176,28 @@ spec:
 Checks
 ======
 
-@todo - generate these docs from the checks flags.
+Get latest check help via: `./sens8 -check-help`
 
 
 ### `deployment_health`
-valid resources: `Deployment`
 
-- `deployment_health --tolerance [HEALTH_TOLERANCE]`. HEALTH_TOLERANCE is the percent of minimum healthy nodes required (0.0 - 1.0)    
+**Resources**: deployment
 
-**Example**
+Checks deployment pod levels via status info provided by Kubernetes
 
-```json
-[
-  {
-    "name": "deployment_health",     
-    "command": "deployment_health --tolerance 0.6",
-    "interval": 60
-  }
-]
 ```
-Result
-```json
-{
-  "name": "deployment_health",
-  "command": "deployment_health --tolerance 0.6",
-  "interval": 60,
-  "source": "foo.deployment.default",
-  "status": 0,
-  "output": "replicas: 5, updatedReplicas: 5, unavailableReplicas: 0"
-}
+      --tolerance value   health tolerance (default 0.8)
+
 ```
 
 ### `hs_healthcheck`
-valid resources: `Pod`, `Service`
+
+**Resources**: pod, service
+
+Make an http request to the pod or service and check the status returned in the following format: https://hootsuite.github.io/health-checks-api/#status-aggregate-get.
+Example: `hs_healthcheck url=http://:::POD_IP::::8080/status/dependencies`
+
+```
+      --url string   url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CUSTER_IP::: gets replaced by the service's ip
+
+```

@@ -45,3 +45,21 @@ func JsonStructToMap(s interface{}, m *map[string]interface{}) error {
 func SecondsSince(start time.Time) float64 {
 	return float64(time.Since(start).Nanoseconds()) / float64(1000000000)
 }
+
+func PadRight(str, pad string, length int) string {
+	for {
+		if len(str) >= length {
+			return str
+		}
+		str += pad
+	}
+}
+
+func PadLeft(str, pad string, length int) string {
+	for {
+		if len(str) >= length {
+			return str
+		}
+		str = pad + str
+	}
+}

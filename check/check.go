@@ -180,6 +180,9 @@ type Check interface {
 
 	// Execute run the check
 	Execute() (CheckResult, error)
+
+	// Usage returns the help docs for the check
+	Usage() CheckUsage
 }
 
 type BaseCheck struct {
@@ -197,7 +200,7 @@ func (c *BaseCheck) GetConfig() *CheckConfig {
 type CheckFactory func(config CheckConfig) (Check, error)
 
 type checkFactoryItem struct {
-	factory CheckFactory
+	factory       CheckFactory
 	resourceTypes []string
 }
 
@@ -244,4 +247,26 @@ func init() {
 	argParser.ParseEnv = true
 }
 
+type CheckUsage struct {
+	Resources   []string
+	Description string
+	Flags       string
+}
 
+func Docs() map[string]CheckUsage {
+	u := make(map[string]CheckUsage)
+	for name, factory := range checkFactories {
+		conf := CheckConfig{
+			Name: name,
+			Command: name,
+			Id: name,
+			Argv:[]string{name},
+		}
+		// ignore errors. factory might fail due to missing args
+		c, _ := factory.factory(conf)
+		usage := c.Usage()
+		usage.Resources = factory.resourceTypes
+		u[name] = usage
+	}
+	return u
+}

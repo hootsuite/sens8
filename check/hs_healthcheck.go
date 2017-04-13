@@ -15,9 +15,10 @@ import (
 
 type HsHealthCheck struct {
 	BaseCheck
-	url      *string
-	pod      *api.Pod
-	resource interface{}
+	url         *string
+	pod         *api.Pod
+	resource    interface{}
+	commandLine *flag.FlagSet
 }
 
 //NewHsHealthCheck creates a new deployment health check
@@ -28,6 +29,7 @@ func NewHsHealthCheck(config CheckConfig) (Check, error) {
 	// process flags
 	commandLine := flag.NewFlagSet(config.Id, flag.ContinueOnError)
 	h.url = commandLine.String("url", "", "url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CUSTER_IP::: gets replaced by the service's ip")
+	h.commandLine = commandLine
 	if err := commandLine.Parse(config.Argv[1:]); err != nil {
 		return &h, nil
 	}
@@ -35,6 +37,17 @@ func NewHsHealthCheck(config CheckConfig) (Check, error) {
 		fmt.Errorf("--url cannot be empty")
 	}
 	return &h, nil
+}
+
+func (dh *HsHealthCheck) Usage() CheckUsage {
+	d := "Make an http request to the pod or service and check "
+	d += "the status returned in the following format: "
+	d += "https://hootsuite.github.io/health-checks-api/#status-aggregate-get.\n"
+	d += "Example: `hs_healthcheck url=http://:::POD_IP::::8080/status/dependencies`"
+	return CheckUsage{
+		Description: d,
+		Flags: dh.commandLine.FlagUsages(),
+	}
 }
 
 func (h *HsHealthCheck) Update(resource interface{}) {
@@ -100,5 +113,5 @@ func (h *HsHealthCheck) Execute() (CheckResult, error) {
 
 // register factory
 func init() {
-	RegisterCheck("hs_healthcheck", NewHsHealthCheck, []string{"pod"})
+	RegisterCheck("hs_healthcheck", NewHsHealthCheck, []string{"pod", "service"})
 }
