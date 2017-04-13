@@ -1,0 +1,121 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sens8
+  namespace: kube-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: sens8
+    spec:
+      containers:
+      - name: checks
+        imagePullPolicy: Always
+        image: hootsuite/sens8:latest
+        command:
+        - /usr/local/bin/sens8
+        args:
+        - -config-file=/etc/sensu/config/config.json
+        - -logtostderr=true
+        - -v=6
+        volumeMounts:
+        - name: sens8-tls
+          mountPath: /etc/sensu/tls
+          readOnly: true
+        - name: sens8-cfg
+          mountPath: /etc/sensu/config
+          readOnly: true
+      volumes:
+      - name: sens8-tls
+        secret:
+          secretName: sens8-tls
+      - name: sens8-cfg
+        configMap:
+          name: sens8-cfg
+          items:
+          - key: config.json
+            path: config.json
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sens8-cfg
+  namespace: kube-system
+data:
+  config.json: |-
+    {
+      "client": {
+        "name": "sens8",
+        "subscriptions": [],
+        "pager_team": "production_engineering",
+        "cluster_name": "k8s-1.example.com",
+        "keepalive": {
+          "handlers": ["default"],
+          "thresholds": {
+            "warning": 40,
+            "critical": 60
+          }
+        },
+        "deregistration": {
+          "handler": "deregister_client"
+        }
+      },
+      "defaults": {
+        "interval": 60,
+        "occurrences": 3,
+        "refresh": 900,
+        "handlers": ["default"],
+        "pager_team": "production_engineering"
+      },
+      "rabbitmq": [
+        {
+          "ssl": {
+            "cert_chain_file": "/etc/sensu/tls/tls.crt",
+            "private_key_file": "/etc/sensu/tls/tls.key"
+          },
+          "vhost": "/sensu",
+          "password": "password",
+          "user": "sensu",
+          "port": 5671,
+          "host": "sensu-rmq1.example.com"
+        },
+        {
+          "ssl": {
+            "cert_chain_file": "/etc/sensu/tls/tls.crt",
+            "private_key_file": "/etc/sensu/tls/tls.key"
+          },
+          "vhost": "/sensu",
+          "password": "password",
+          "user": "sensu",
+          "port": 5671,
+          "host": "sensu-rmq2.example.com"
+        },
+        {
+          "ssl": {
+            "cert_chain_file": "/etc/sensu/tls/tls.crt",
+            "private_key_file": "/etc/sensu/tls/tls.key"
+          },
+          "vhost": "/sensu",
+          "password": "password",
+          "user": "sensu",
+          "port": 5671,
+          "host": "sensu-rmq3.example.com"
+        }
+      ]
+    }
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sens8-tls
+  namespace: kube-system
+type: kubernetes.io/tls
+data:
+  tls.crt: **********************
+  tls.key: **********************

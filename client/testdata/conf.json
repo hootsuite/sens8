@@ -1,0 +1,58 @@
+{
+  "client": {
+    "name": "sens8",
+    "subscriptions": [],
+    "pager_team": "production_engineering",
+    "cluster_name": "k8s1.example.com",
+    "keepalive": {
+      "handlers": ["default"],
+      "thresholds": {
+        "warning": 40,
+        "critical": 60
+      }
+    },
+    "deregistration": {
+      "handler": "deregister_client"
+    }
+  },
+  "defaults": {
+    "occurrences": 3,
+    "handlers": ["default"],
+    "pager_team": "production_engineering"
+  },
+  "rabbitmq": [
+    {
+      "ssl": {
+        "cert_chain_file": "/etc/sensu/tls/tls.crt",
+        "private_key_file": "/etc/sensu/tls/tls.key"
+      },
+      "vhost": "/sensu",
+      "password": "password",
+      "user": "sensu",
+      "port": 5671,
+      "host": "sensu-rmq1.example.com"
+    },
+    {
+      "ssl": {
+        "cert_chain_file": "/etc/sensu/tls/tls.crt",
+        "private_key_file": "/etc/sensu/tls/tls.key"
+      },
+      "vhost": "/sensu",
+      "password": "password",
+      "user": "sensu",
+      "port": 5671,
+      "host": "sensu-rmq2.example.com"
+    },
+    {
+      "ssl": {
+        "cert_chain_file": "/etc/sensu/tls/tls.crt",
+        "private_key_file": "/etc/sensu/tls/tls.key"
+      },
+      "vhost": "/sensu",
+      "password": "password",
+      "user": "sensu",
+      "port": 5671,
+      "host": "sensu-rmq3.example.com"
+    }
+  ]
+}
