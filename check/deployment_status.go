@@ -69,7 +69,7 @@ func (dh *DeploymentStatus) Execute() (CheckResult, error) {
 
 	if *dh.minReplicas > 0 && *dh.minReplicas > dh.deployment.Spec.Replicas {
 		res.Status = CRITICAL
-		res.Output = fmt.Sprintf("Replicas configured to %s\n", dh.deployment.Spec.Replicas)
+		res.Output = fmt.Sprintf("Replicas configured to %d\n", dh.deployment.Spec.Replicas)
 	}
 
 	o, _ := json.MarshalIndent(status, "", "  ")
