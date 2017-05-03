@@ -5,7 +5,11 @@ IMAGE := hootsuite/sens8
 help: ## List targets & descriptions
 	@cat Makefile* | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-all: build build-image ## compile & build docker image
+all: deps build build-image ## compile & build docker image
+
+deps: ## install deps into vendor with govendor
+	go get github.com/kardianos/govendor
+	govendor sync
 
 build: ## compile main go app
 	GOOS=linux GOARCH=amd64 go build -v -o sens8
