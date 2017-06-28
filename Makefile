@@ -7,9 +7,9 @@ help: ## List targets & descriptions
 
 all: deps build build-image ## compile & build docker image
 
-deps: ## install deps into vendor with govendor
-	go get github.com/kardianos/govendor
-	govendor sync
+deps: ## install deps into vendor with golang dep
+	go get github.com/golang/dep/cmd/dep
+	dep ensure
 
 build: ## compile main go app
 	GOOS=linux GOARCH=amd64 go build -v -o sens8

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"encoding/json"
 	flag "github.com/spf13/pflag"
-	"k8s.io/kubernetes/pkg/apis/extensions"
+	"k8s.io/client-go/pkg/apis/extensions"
 )
 
 type DeploymentStatus struct {

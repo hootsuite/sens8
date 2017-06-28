@@ -9,9 +9,9 @@ import (
 	"flag"
 	"strings"
 	"github.com/golang/glog"
-	"k8s.io/kubernetes/pkg/client/restclient"
-	"k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
-	"k8s.io/kubernetes/pkg/controller/informers"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/informers"
 
 	"github.com/hootsuite/sens8/client"
 	"github.com/hootsuite/sens8/controller"
@@ -62,11 +62,11 @@ func main() {
 
 
 	// Set up the kubernetes go clients
-	config, err := restclient.InClusterConfig()
+	config, err := rest.InClusterConfig()
 	if err != nil {
 		panic(fmt.Sprintf("creating kubernetes client: %s", err.Error()))
 	}
-	clientset, err := internalclientset.NewForConfig(config)
+	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(fmt.Sprintf("creating kubernetes client: %s", err.Error()))
 	}
@@ -77,14 +77,11 @@ func main() {
 	// init controllers
 	controllers := map[string]*controller.ResourceCheckController{}
 	for _, res := range []string{"deployment", "pod"} {
-		ctl, err := controller.NewResourceCheckController(
+		ctl := controller.NewResourceCheckController(
 			clientset,
 			&sensuClient,
 			controller.ResourceAdapterFactory(res, sharedInformers),
 		)
-		if err != nil {
-			panic(fmt.Sprintf("failed to create %s controller: %s", res, err.Error()))
-		}
 		controllers[res] = &ctl
 		go ctl.Run(stopCh)
 	}

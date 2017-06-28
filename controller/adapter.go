@@ -2,10 +2,12 @@ package controller
 
 import (
 	"fmt"
-	"k8s.io/kubernetes/pkg/controller/informers"
-	"k8s.io/kubernetes/pkg/apis/extensions"
-	"k8s.io/kubernetes/pkg/client/cache"
-	"k8s.io/kubernetes/pkg/api"
+	"k8s.io/client-go/informers"
+	"k8s.io/client-go/informers/extensions/v1beta1"
+	"k8s.io/client-go/informers/core/v1"
+	"k8s.io/client-go/pkg/apis/extensions"
+	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/pkg/api"
 )
 
 type ResourceAdapter interface {
@@ -19,15 +21,15 @@ type ResourceAdapter interface {
 // ResourceAdapterFactory creates an adapter for the given resource type (t) and informer factory
 func ResourceAdapterFactory(t string, i informers.SharedInformerFactory) ResourceAdapter {
 	switch t {
-	case "deployment": return &DeploymentAdapter{I:i.Deployments()}
-	case "pod": return &PodAdapter{I: i.Pods()}
+	case "deployment": return &DeploymentAdapter{I:i.Extensions().V1beta1().Deployments()}
+	case "pod": return &PodAdapter{I: i.Core().V1().Pods()}
 	}
 	return nil
 }
 
 
 type DeploymentAdapter struct {
-	I informers.DeploymentInformer
+	I v1beta1.DeploymentInformer
 }
 func (c *DeploymentAdapter) CheckSource(resource interface{}) string {
 	r := resource.(*extensions.Deployment)
@@ -49,7 +51,7 @@ func (c *DeploymentAdapter) DeregisterDefault() bool {
 
 
 type PodAdapter struct {
-	I informers.PodInformer
+	I v1.PodInformer
 }
 func (c *PodAdapter) CheckSource(resource interface{}) string {
 	r := resource.(*api.Pod)

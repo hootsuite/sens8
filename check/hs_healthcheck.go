@@ -2,14 +2,14 @@ package check
 
 import (
 	"fmt"
-	"net/http"
-	"strings"
-	"io/ioutil"
-	flag "github.com/spf13/pflag"
-	"k8s.io/kubernetes/pkg/api"
 	"reflect"
-	"encoding/json"
 	"time"
+	"strings"
+	"net/http"
+	"io/ioutil"
+	"encoding/json"
+	flag "github.com/spf13/pflag"
+	"k8s.io/client-go/pkg/api"
 	"github.com/hootsuite/sens8/util"
 )
 

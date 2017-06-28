@@ -6,4 +6,3 @@
 *.iml
 sens8
 vendor/*
-!vendor/vendor.json

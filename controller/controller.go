@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/golang/glog"
-	"k8s.io/kubernetes/pkg/client/cache"
-	clientset "k8s.io/kubernetes/pkg/client/clientset_generated/internalclientset"
+	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/hootsuite/sens8/check"
 	"github.com/hootsuite/sens8/client"
@@ -17,7 +17,7 @@ type ResourceCheckController struct {
 	// resource adapter
 	adapter   ResourceAdapter
 	// kubernetes client
-	clientset clientset.Interface
+	clientset kubernetes.Interface
 	// store for all the instantiated checks
 	registry  CheckRegistry
 	// sensu client
@@ -25,7 +25,7 @@ type ResourceCheckController struct {
 }
 
 // NewResourceCheckController creates a new controller for k8s resources based on what adapter is bassed in. 
-func NewResourceCheckController(clientset clientset.Interface, sensuClient *client.SensuClient, adapter ResourceAdapter) (ResourceCheckController, error) {
+func NewResourceCheckController(clientset kubernetes.Interface, sensuClient *client.SensuClient, adapter ResourceAdapter) ResourceCheckController {
 
 	c := ResourceCheckController{
 		adapter: adapter,
@@ -34,12 +34,12 @@ func NewResourceCheckController(clientset clientset.Interface, sensuClient *clie
 		sensuClient: sensuClient,
 	}
 
-	err := adapter.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+	adapter.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: c.addResource,
 		UpdateFunc: c.updateResource,
 		DeleteFunc: c.deleteResource,
 	})
-	return c, err
+	return c
 }
 
 func (c *ResourceCheckController) Run(stopCh chan struct{}) {
