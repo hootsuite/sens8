@@ -2,6 +2,8 @@
 
 **Sensu + K8s**
 
+[![CircleCI](https://circleci.com/gh/hootsuite/sens8.svg?style=svg)](https://circleci.com/gh/hootsuite/sens8)
+
 A Kubernetes controller that watches cluster resources (`Deployment`, `Pod` etc.) and runs Sensu checks which are declared in the resource's annotations. For each of the check definitions it will run them at the specified interval, updating the checks with the latest resource info provided by Kubernetes. It communicates directly to Sensu's RabbitMQ endpoint, dynamically adding Sensu [proxy clients](https://sensuapp.org/docs/latest/reference/clients.html#proxy-clients) and optionally removing them on resource deletion or annotation update.   
 
 Sens8 effectively acts a Sensu super client. It allows for checks to be run on ephemeral resources such as a pod under a replicaset without having to sidecar the heavy Sensu ruby client, or restart it. By having checks defined in the resources themselves it gives teams greater autonomy and lets checks be pushed out via CD. It also prevents having to manage resource-level checks out of band via configuration management. 
@@ -183,6 +185,10 @@ Each resource is limited to a subset of commands that can be run against it.
 _or_
 
 Get latest docs via: `./sens8 -check-commands`
+
+### Release Process
+
+If master branch contains a git tag, circle-ci will tag the docker image as well. Make sure to push the tag, before the commit. This will likely change when circle-ci 2.0 supports git tags. 
 
 ### Maintainers
 

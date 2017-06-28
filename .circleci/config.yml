@@ -1,0 +1,37 @@
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/hootsuite/sens8
+    docker:
+      - image: circleci/golang:1.8
+    steps:
+      - checkout
+      - setup_remote_docker:
+          reusable: true
+      - run: make deps
+      - run: make test
+      - run: make build
+      - run:
+          name: Build image
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker build -t hootsuite/sens8:latest .
+            fi
+      - run:
+          name: Push image
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+              docker push hootsuite/sens8:latest
+            fi
+      - run:
+          name: Tag and push version if exists
+          # work around until tags are properly supported
+          # https://discuss.circleci.com/t/git-tag-deploys-in-2-0/9493/6
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              for TAG in $(git tag --contains $CIRCLE_SHA1); do
+                docker tag hootsuite/sens8:latest hootsuite/sens8:$TAG
+                docker push hootsuite/sens8:$TAG
+              done
+            fi

@@ -53,7 +53,7 @@ func TestNewSensuClient(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	s, err := NewSensuClient("testData/conf.json")
+	s, err := NewSensuClient("testdata/conf.json")
 	require.NoError(err)
 
 	assert.Equal("sens8", s.Config.ClientConfig.Name)
@@ -71,7 +71,7 @@ func TestNewSensuClientDefaults(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	s, err := NewSensuClient("testData/conf.json")
+	s, err := NewSensuClient("testdata/conf.json")
 	require.NoError(err)
 	assert.EqualValues(defaults, s.Config.Defaults)
 }
@@ -80,7 +80,7 @@ func TestNewSensuClientKeepalive(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	s, err := NewSensuClient("testData/conf.json")
+	s, err := NewSensuClient("testdata/conf.json")
 	require.NoError(err)
 
 	assert.Equal(&[]string{"default"}, s.Config.ClientConfig.Keepalive.Handlers)
@@ -93,7 +93,7 @@ func TestSensuClient_Start(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	s, err := NewSensuClient("testData/conf.json")
+	s, err := NewSensuClient("testdata/conf.json")
 	require.NoError(err)
 	tr := MockTransport{}
 	tr.Connect()
@@ -122,7 +122,7 @@ func TestSensuClient_Deregister(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	s, err := NewSensuClient("testData/conf.json")
+	s, err := NewSensuClient("testdata/conf.json")
 	require.NoError(err)
 	tr := MockTransport{}
 	tr.Connect()
@@ -154,7 +154,7 @@ func TestSensuClient_PostCheckResult(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 
-	s, err := NewSensuClient("testData/conf.json")
+	s, err := NewSensuClient("testdata/conf.json")
 	require.NoError(err)
 	tr := MockTransport{}
 	tr.Connect()
