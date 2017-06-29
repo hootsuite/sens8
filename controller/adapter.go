@@ -71,3 +71,24 @@ func (c *PodAdapter) DeregisterDefault() bool {
 	return true
 }
 
+
+type DaemonsetAdapter struct {
+	I v1beta1.DaemonSetInformer
+}
+func (c *DaemonsetAdapter) CheckSource(resource interface{}) string {
+	r := resource.(*extensions.DaemonSet)
+	return fmt.Sprintf("%s.pod.%s", r.ObjectMeta.Name, r.Namespace)
+}
+func (c *DaemonsetAdapter) CheckConfigs(resource interface{}) (string, bool) {
+	v, ok := resource.(*extensions.DaemonSet).Annotations[CheckAnnotation]
+	return v, ok
+}
+func (c *DaemonsetAdapter) Informer() cache.SharedInformer {
+	return c.I.Informer()
+}
+func (c *DaemonsetAdapter) Type() string {
+	return "daemonset"
+}
+func (c *DaemonsetAdapter) DeregisterDefault() bool {
+	return false
+}
