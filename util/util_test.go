@@ -51,5 +51,5 @@ func TestSecondsSince(t *testing.T) {
 	n := time.Now()
 	time.Sleep(time.Millisecond)
 	s := util.SecondsSince(n)
-	assert.InDelta(t, s, 0.001, 0.001)
+	assert.InDelta(t, s, 0.001, 0.002)
 }
