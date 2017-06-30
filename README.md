@@ -32,19 +32,7 @@ Refer to `kubernetes.yml` for an example deployment + config
 
 ### Roadmap
 
-* Implemented resource controllers
-  - [x] Deployment
-  - [x] Pod
-  - [ ] Service
-  - [ ] ReplicaSet
-  - [ ] Node
-  - [ ] DaemonSet
-* Generic checks: exec, http status code, etc.
-* Configure which resource controllers are to run. 
-* HA deployment. Run a subset of checks per sens8 instance.
-* Simple stats to list currently running checks.
-* Silence all checks. Macro functionality for maintenance, or when fit hits shan.  
-
+See [projects](https://github.com/hootsuite/sens8/projects) for status 
 
 Check Schema
 ============

@@ -76,7 +76,7 @@ func main() {
 
 	// init controllers
 	controllers := map[string]*controller.ResourceCheckController{}
-	for _, res := range []string{"deployment", "pod"} {
+	for _, res := range []string{"deployment", "pod", "daemonset"} {
 		ctl := controller.NewResourceCheckController(
 			clientset,
 			&sensuClient,

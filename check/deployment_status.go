@@ -23,8 +23,8 @@ func NewDeploymentStatus(config CheckConfig) (Check, error) {
 
 	// process flags
 	commandLine := flag.NewFlagSet(config.Id, flag.ContinueOnError)
-	dh.warnLevel = commandLine.Float32P("warn", "w", 0.9, "Percent of healthy pods to warn at")
-	dh.critLevel = commandLine.Float32P("crit", "c", 0.8, "Percent of healthy pods to alert critical at")
+	dh.warnLevel = commandLine.Float32P("warn", "w", 0.9, "Percent of healthy (available) pods to warn at")
+	dh.critLevel = commandLine.Float32P("crit", "c", 0.8, "Percent of healthy (available) pods to alert critical at")
 	dh.minReplicas = commandLine.Int32P("min-configured-replicas", "m", 0, "Alert if a deployment gets configured with a replica count below X. Often users 'suspend' a service by setting 'replicas: 0'. Intended as a simple safeguard")
 	err := commandLine.Parse(config.Argv[1:])
 	dh.commandLine = commandLine
