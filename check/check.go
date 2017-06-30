@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"time"
 	"strings"
-
 	"github.com/mattn/go-shellwords"
 	"github.com/mitchellh/hashstructure"
 
@@ -248,31 +247,6 @@ func CheckFactoryIds() []string {
 		i = append(i, k)
 	}
 	return i
-}
-
-type CheckUsage struct {
-	Resources   []string
-	Description string
-	Flags       string
-}
-
-// Docs gets the help docs for all registered checks
-func Docs() map[string]CheckUsage {
-	u := make(map[string]CheckUsage)
-	for name, factory := range checkFactories {
-		conf := CheckConfig{
-			Name: name,
-			Command: name,
-			Id: name,
-			Argv:[]string{name},
-		}
-		// ignore errors. factory might fail due to missing args
-		c, _ := factory.factory(conf)
-		usage := c.Usage()
-		usage.Resources = factory.resourceTypes
-		u[name] = usage
-	}
-	return u
 }
 
 func init() {

@@ -7,7 +7,6 @@ import (
 	"syscall"
 	"time"
 	"flag"
-	"strings"
 	"github.com/golang/glog"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -16,7 +15,6 @@ import (
 	"github.com/hootsuite/sens8/client"
 	"github.com/hootsuite/sens8/controller"
 	"github.com/hootsuite/sens8/check"
-	"github.com/hootsuite/sens8/util"
 )
 
 var (
@@ -29,12 +27,12 @@ func main() {
 	flag.Parse()
 
 	if *checkCommands {
-		printCheckCommandHelpText()
+		check.PrintCheckDocsText()
 		os.Exit(0)
 	}
 
 	if *checkCommandsMd {
-		printCheckCommandMarkdown()
+		check.PrintCheckDocsMarkdown()
 		os.Exit(0)
 	}
 
@@ -102,26 +100,3 @@ func main() {
 	time.Sleep(2 * time.Second)
 	glog.Flush()
 }
-
-func printCheckCommandHelpText() {
-	for name, usage := range check.Docs() {
-		fmt.Println(name)
-		fmt.Println(util.PadRight("", "=", len(name)))
-		fmt.Printf("Resources: %s\n", strings.Join(usage.Resources, ", "))
-		fmt.Printf("%s\n\n", usage.Description)
-		fmt.Printf("%s\n\n", usage.Flags)
-	}
-}
-
-func printCheckCommandMarkdown() {
-	fmt.Printf("Checks Commands\n===============\n\n")
-	fmt.Printf("Get latest docs via: `./sens8 -check-commands`\n\n")
-
-	for name, usage := range check.Docs() {
-		fmt.Printf("### `%s`\n\n", name)
-		fmt.Printf("**Resources**: %s\n\n", strings.Join(usage.Resources, ", "))
-		fmt.Printf("%s\n\n", usage.Description)
-		fmt.Printf("```\n%s\n```\n\n", usage.Flags)
-	}
-}
-
