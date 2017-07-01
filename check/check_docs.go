@@ -1,7 +1,7 @@
 package check
 
 import (
-	"os"
+	"bytes"
 	"strings"
 	"sort"
 	"text/template"
@@ -50,11 +50,11 @@ func Docs() []CheckDocs {
 	return sorted
 }
 
-var checkDocsMarkdownTpl = `
-Checks Commands
-===============
+var CheckDocsMarkdownTpl = `
+Checks Command Documentation
+============================
 
-Get latest docs via: ` + "`" + `./sens8 -check-commands` + "`" + `
+Get latest docs via: ` + "`" + `./sens8 -check-docs` + "`" + `
 
 {{ range $doc := .Docs }}
 ### ` + "`" + `{{ $doc.Id }}` + "`" + `
@@ -70,13 +70,13 @@ Get latest docs via: ` + "`" + `./sens8 -check-commands` + "`" + `
 {{ end }}
 `
 
-// PrintCheckDocsMarkdown prints the usage docs for checks in markdown meant for external (github) docs
-func PrintCheckDocsMarkdown() {
-	PrintCheckDocs(checkDocsMarkdownTpl)
+// GenCheckDocsMarkdown generates the usage docs for checks in markdown meant for external (github) docs
+func GenCheckDocsMarkdown() string {
+	return GenCheckDocs(CheckDocsMarkdownTpl)
 }
 
-var checkDocsTextTpl = `
-Checks Commands
+var CheckDocsTextTpl = `
+Checks Command Documentation
 
 {{ range $doc := .Docs }}
 {{ $doc.Id }}
@@ -91,13 +91,13 @@ Resources: {{ StringsJoin $doc.Resources ", " }}
 {{ end }}
 `
 
-// PrintCheckDocsText prints the usage docs for checks in a format suitable for CLI
-func PrintCheckDocsText() {
-	PrintCheckDocs(checkDocsTextTpl)
+// GenCheckDocsText generates the usage docs for checks in a format suitable for CLI
+func GenCheckDocsText() string {
+	return GenCheckDocs(CheckDocsTextTpl)
 }
 
-// PrintCheckDocs prints the usage docs for checks with the given template
-func PrintCheckDocs(tpl string) {
+// GenCheckDocs generates the usage docs for checks with the given template
+func GenCheckDocs(tpl string) string {
 	headerLine := func(s string) string {
 		return util.PadRight("", "=", len(s))
 	}
@@ -109,8 +109,10 @@ func PrintCheckDocs(tpl string) {
 	t := template.Must(template.New("checkDocs").Funcs(fm).Parse(tpl))
 
 	data := struct{ Docs []CheckDocs }{Docs()}
-	err := t.Execute(os.Stdout, data)
+	var out bytes.Buffer
+	err := t.Execute(&out, data)
 	if err != nil {
 		panic(err)
 	}
+	return out.String()
 }

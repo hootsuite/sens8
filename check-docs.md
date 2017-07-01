@@ -1,8 +1,8 @@
 
-Checks Commands
-===============
+Checks Command Documentation
+============================
 
-Get latest docs via: `./sens8 -check-commands`
+Get latest docs via: `./sens8 -check-docs`
 
 
 ### `daemonset_status`
@@ -45,5 +45,6 @@ Example: `hs_healthcheck url=http://:::POD_IP::::8080/status/dependencies`
   -u, --url string   url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CUSTER_IP::: gets replaced by the service's ip
 
 ```
+
 
 

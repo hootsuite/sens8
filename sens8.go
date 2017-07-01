@@ -19,20 +19,20 @@ import (
 
 var (
 	sensuConfigFile *string = flag.String("config-file", "/etc/sensu/config.json", "Sensu configuration file. Same format as Sensu proper")
-	checkCommands *bool = flag.Bool("check-commands", false, "Print documentation for all check commands and exit")
-	checkCommandsMd *bool = flag.Bool("check-commands-md", false, "Print documentation for all checks commands in markdown format and exit (indended for publishing docs)")
+	checkDocs *bool = flag.Bool("check-docs", false, "Print documentation for all check commands and exit")
+	checkDocsMd *bool = flag.Bool("check-docs-md", false, "Print documentation for all checks commands in markdown format and exit (indended for publishing docs)")
 )
 
 func main() {
 	flag.Parse()
 
-	if *checkCommands {
-		check.PrintCheckDocsText()
+	if *checkDocs {
+		fmt.Println(check.GenCheckDocsText())
 		os.Exit(0)
 	}
 
-	if *checkCommandsMd {
-		check.PrintCheckDocsMarkdown()
+	if *checkDocsMd {
+		fmt.Println(check.GenCheckDocsMarkdown())
 		os.Exit(0)
 	}
 

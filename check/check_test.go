@@ -244,7 +244,12 @@ func TestDocsComplete(t *testing.T) {
 	require.True(len(d) > 0, "docs should be non empty")
 	ids := check.CheckFactoryIds()
 	for _, id := range ids {
-		_, exists := d[id]
+		exists := false
+		for _, doc := range d {
+			if doc.Id == id {
+				exists = true
+			}
+		}
 		assert.True(exists, fmt.Sprintf("doc missing for %s", id))
 	}
 }
@@ -252,10 +257,28 @@ func TestDocsComplete(t *testing.T) {
 func TestDocsValid(t *testing.T) {
 	assert := assert.New(t)
 	d := check.Docs()
-	for id, doc := range d{
-		assert.NotEmpty(doc.Resources, fmt.Sprintf("%s has empty resources", id))
-		assert.NotEmpty(doc.Flags, fmt.Sprintf("%s has empty flags", id))
-		assert.NotEmpty(doc.Description, fmt.Sprintf("%s has empty description", id))
+	for _, doc := range d{
+		assert.NotEmpty(doc.Id, "doc has empty resources")
+		assert.NotEmpty(doc.Resources, "doc has empty resources")
+		assert.NotEmpty(doc.Flags, "doc has empty flags")
+		assert.NotEmpty(doc.Description, "doc has empty description")
 	}
 }
 
+func TestGenCheckDocs(t *testing.T) {
+	assert := assert.New(t)
+	d := check.GenCheckDocs("xxx")
+	assert.Exactly("xxx", d)
+}
+
+func TestGenCheckDocsMarkdown(t *testing.T) {
+	assert := assert.New(t)
+	d := check.GenCheckDocsMarkdown()
+	assert.Contains(d, "deployment_status")
+}
+
+func TestGenCheckDocsText(t *testing.T) {
+	assert := assert.New(t)
+	d := check.GenCheckDocsText()
+	assert.Contains(d, "deployment_status")
+}
