@@ -11,7 +11,7 @@ deps: ## install deps into vendor with golang dep
 	dep ensure -v
 
 build: ## compile main go app
-	GOOS=linux GOARCH=amd64 go build -v -o sens8
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o sens8
 
 build-image: ## create docker image
 	docker build -t $(IMAGE):latest .
