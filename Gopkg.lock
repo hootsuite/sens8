@@ -137,7 +137,7 @@
   branch = "master"
   name = "github.com/streadway/amqp"
   packages = ["."]
-  revision = "27859d32540aebd2e5befa52dc59ae8e6a0132b6"
+  revision = "b4f3ceab0337f013208d31348b578d83c0064744"
 
 [[projects]]
   name = "github.com/stretchr/testify"

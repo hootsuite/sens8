@@ -47,4 +47,4 @@
 
 [[constraint]]
   name = "github.com/op/go-logging"
-  version = "master"
+  branch = "master"
