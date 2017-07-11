@@ -1,0 +1,12 @@
+hash: 561cffaf47b2b3f14ec72f3657b138a8bc2227687bc8ff545802cc5a41722ace
+updated: 2017-06-03T22:41:01.272903751-04:00
+imports:
+- name: github.com/op/go-logging
+  version: 970db520ece77730c7e4724c61121037378659d9
+- name: github.com/streadway/amqp
+  version: b4f3ceab0337f013208d31348b578d83c0064744
+- name: github.com/upfluence/goutils
+  version: e8f7112ce74c2e02eca205f14415bab7e02f6c46
+  subpackages:
+  - log
+testImports: []

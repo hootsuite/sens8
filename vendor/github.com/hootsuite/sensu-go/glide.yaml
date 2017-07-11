@@ -1,0 +1,8 @@
+package: github.com/upfluence/sensu-go
+import:
+- package: github.com/op/go-logging
+- package: github.com/streadway/amqp
+  version: b4f3ceab0337f013208d31348b578d83c0064744
+- package: github.com/upfluence/goutils
+  subpackages:
+  - log

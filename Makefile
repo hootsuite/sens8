@@ -4,7 +4,7 @@ IMAGE := hootsuite/sens8
 help: ## List targets & descriptions
 	@cat Makefile* | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-all: deps test build build-image ## compile & build docker image
+all: test build build-image ## compile & build docker image
 
 deps: ## install deps into vendor with golang dep
 	go get github.com/golang/dep/cmd/dep
