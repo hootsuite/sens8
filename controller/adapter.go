@@ -2,12 +2,12 @@ package controller
 
 import (
 	"fmt"
-	"k8s.io/client-go/informers"
-	"k8s.io/client-go/informers/extensions/v1beta1"
-	"k8s.io/client-go/informers/core/v1"
-	"k8s.io/client-go/pkg/apis/extensions"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/pkg/api"
+	"k8s.io/client-go/informers"
+	"k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
+	informers_v1 "k8s.io/client-go/informers/core/v1"
+	informers_v1beta1 "k8s.io/client-go/informers/extensions/v1beta1"
 )
 
 type ResourceAdapter interface {
@@ -21,22 +21,27 @@ type ResourceAdapter interface {
 // ResourceAdapterFactory creates an adapter for the given resource type (t) and informer factory
 func ResourceAdapterFactory(t string, i informers.SharedInformerFactory) ResourceAdapter {
 	switch t {
-	case "deployment": return &DeploymentAdapter{I:i.Extensions().V1beta1().Deployments()}
-	case "pod": return &PodAdapter{I: i.Core().V1().Pods()}
+	case "deployment":
+		return &DeploymentAdapter{I:i.Extensions().V1beta1().Deployments()}
+	case "pod":
+		return &PodAdapter{I: i.Core().V1().Pods()}
+	case "daemonset":
+		return &DaemonsetAdapter{I: i.Extensions().V1beta1().DaemonSets()}
+	default:
+		panic(fmt.Sprintf("%s is not a valid controller type", t))
 	}
-	return nil
 }
 
 
 type DeploymentAdapter struct {
-	I v1beta1.DeploymentInformer
+	I informers_v1beta1.DeploymentInformer
 }
 func (c *DeploymentAdapter) CheckSource(resource interface{}) string {
-	r := resource.(*extensions.Deployment)
+	r := resource.(*v1beta1.Deployment)
 	return fmt.Sprintf("%s.deployment.%s", r.ObjectMeta.Name, r.Namespace)
 }
 func (c *DeploymentAdapter) CheckConfigs(resource interface{}) (string, bool) {
-	v, ok := resource.(*extensions.Deployment).Annotations[CheckAnnotation]
+	v, ok := resource.(*v1beta1.Deployment).Annotations[CheckAnnotation]
 	return v, ok
 }
 func (c *DeploymentAdapter) Informer() cache.SharedInformer {
@@ -51,14 +56,14 @@ func (c *DeploymentAdapter) DeregisterDefault() bool {
 
 
 type PodAdapter struct {
-	I v1.PodInformer
+	I informers_v1.PodInformer
 }
 func (c *PodAdapter) CheckSource(resource interface{}) string {
-	r := resource.(*api.Pod)
+	r := resource.(*v1.Pod)
 	return fmt.Sprintf("%s.pod.%s", r.ObjectMeta.Name, r.Namespace)
 }
 func (c *PodAdapter) CheckConfigs(resource interface{}) (string, bool) {
-	v, ok := resource.(*api.Pod).Annotations[CheckAnnotation]
+	v, ok := resource.(*v1.Pod).Annotations[CheckAnnotation]
 	return v, ok
 }
 func (c *PodAdapter) Informer() cache.SharedInformer {
@@ -73,14 +78,14 @@ func (c *PodAdapter) DeregisterDefault() bool {
 
 
 type DaemonsetAdapter struct {
-	I v1beta1.DaemonSetInformer
+	I informers_v1beta1.DaemonSetInformer
 }
 func (c *DaemonsetAdapter) CheckSource(resource interface{}) string {
-	r := resource.(*extensions.DaemonSet)
-	return fmt.Sprintf("%s.pod.%s", r.ObjectMeta.Name, r.Namespace)
+	r := resource.(*v1beta1.DaemonSet)
+	return fmt.Sprintf("%s.daemonset.%s", r.ObjectMeta.Name, r.Namespace)
 }
 func (c *DaemonsetAdapter) CheckConfigs(resource interface{}) (string, bool) {
-	v, ok := resource.(*extensions.DaemonSet).Annotations[CheckAnnotation]
+	v, ok := resource.(*v1beta1.DaemonSet).Annotations[CheckAnnotation]
 	return v, ok
 }
 func (c *DaemonsetAdapter) Informer() cache.SharedInformer {

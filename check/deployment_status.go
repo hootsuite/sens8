@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"encoding/json"
 	flag "github.com/spf13/pflag"
-	"k8s.io/client-go/pkg/apis/extensions"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
 
 type DeploymentStatus struct {
@@ -12,7 +12,7 @@ type DeploymentStatus struct {
 	warnLevel   *float32
 	critLevel   *float32
 	minReplicas *int32
-	deployment  *extensions.Deployment
+	deployment  *v1beta1.Deployment
 	commandLine *flag.FlagSet
 }
 
@@ -51,7 +51,7 @@ func (dh *DeploymentStatus) Usage() CheckUsage {
 }
 
 func (dh *DeploymentStatus) Update(resource interface{}) {
-	dh.deployment = resource.(*extensions.Deployment)
+	dh.deployment = resource.(*v1beta1.Deployment)
 }
 
 func (dh *DeploymentStatus) Execute() (CheckResult, error) {
@@ -61,13 +61,13 @@ func (dh *DeploymentStatus) Execute() (CheckResult, error) {
 
 	res.Status = OK
 	level := float32(status.AvailableReplicas) / float32(status.Replicas)
-	if level <= *dh.critLevel {
+	if level < *dh.critLevel {
 		res.Status = CRITICAL
-	} else if level <= *dh.warnLevel {
+	} else if level < *dh.warnLevel {
 		res.Status = WARN
 	}
 
-	if *dh.minReplicas > 0 && *dh.minReplicas > dh.deployment.Spec.Replicas {
+	if *dh.minReplicas > 0 && *dh.minReplicas > *dh.deployment.Spec.Replicas {
 		res.Status = CRITICAL
 		res.Output = fmt.Sprintf("Replicas configured to %d\n", dh.deployment.Spec.Replicas)
 	}

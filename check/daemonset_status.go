@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"encoding/json"
 	flag "github.com/spf13/pflag"
-	"k8s.io/client-go/pkg/apis/extensions"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
 
 type DaemonSetStatus struct {
 	BaseCheck
 	warnLevel   *float32
 	critLevel   *float32
-	daemonSet  *extensions.DaemonSet
+	daemonSet  *v1beta1.DaemonSet
 	commandLine *flag.FlagSet
 }
 
@@ -49,7 +49,7 @@ func (dh *DaemonSetStatus) Usage() CheckUsage {
 }
 
 func (dh *DaemonSetStatus) Update(resource interface{}) {
-	dh.daemonSet = resource.(*extensions.DaemonSet)
+	dh.daemonSet = resource.(*v1beta1.DaemonSet)
 }
 
 func (dh *DaemonSetStatus) Execute() (CheckResult, error) {
@@ -59,9 +59,9 @@ func (dh *DaemonSetStatus) Execute() (CheckResult, error) {
 
 	res.Status = OK
 	level := float32(status.NumberAvailable) / float32(status.DesiredNumberScheduled)
-	if level <= *dh.critLevel {
+	if level < *dh.critLevel {
 		res.Status = CRITICAL
-	} else if level <= *dh.warnLevel {
+	} else if level < *dh.warnLevel {
 		res.Status = WARN
 	}
 

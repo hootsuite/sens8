@@ -9,14 +9,14 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	flag "github.com/spf13/pflag"
-	"k8s.io/client-go/pkg/api"
+	"k8s.io/client-go/pkg/api/v1"
 	"github.com/hootsuite/sens8/util"
 )
 
 type HsHealthCheck struct {
 	BaseCheck
 	url         *string
-	pod         *api.Pod
+	pod         *v1.Pod
 	resource    interface{}
 	commandLine *flag.FlagSet
 }
@@ -51,7 +51,7 @@ func (dh *HsHealthCheck) Usage() CheckUsage {
 }
 
 func (h *HsHealthCheck) Update(resource interface{}) {
-	h.pod = resource.(*api.Pod)
+	h.pod = resource.(*v1.Pod)
 	h.resource = resource
 }
 
@@ -65,11 +65,11 @@ func (h *HsHealthCheck) Execute() (CheckResult, error) {
 	t = t[strings.LastIndex(t, ".") + 1:]
 	switch t {
 	case "Pod":
-		pod := h.resource.(*api.Pod)
+		pod := h.resource.(*v1.Pod)
 		url = strings.Replace(url, ":::POD_IP:::", pod.Status.PodIP, -1)
 		url = strings.Replace(url, ":::HOST_IP:::", pod.Status.HostIP, -1)
 	case "Service":
-		service := h.resource.(*api.Service)
+		service := h.resource.(*v1.Service)
 		url = strings.Replace(url, ":::CUSTER_IP:::", service.Spec.ClusterIP, -1)
 	default:
 		return result, fmt.Errorf("resource type is unknown")
