@@ -27,8 +27,10 @@ func ResourceAdapterFactory(t string, i informers.SharedInformerFactory) Resourc
 		return &PodAdapter{I: i.Core().V1().Pods()}
 	case "daemonset":
 		return &DaemonsetAdapter{I: i.Extensions().V1beta1().DaemonSets()}
+	case "service":
+		return &ServiceAdapter{I: i.Core().V1().Services()}
 	default:
-		panic(fmt.Sprintf("%s is not a valid controller type", t))
+		panic(fmt.Sprintf("'%s' is not a valid controller type", t))
 	}
 }
 
@@ -95,5 +97,27 @@ func (c *DaemonsetAdapter) Type() string {
 	return "daemonset"
 }
 func (c *DaemonsetAdapter) DeregisterDefault() bool {
+	return false
+}
+
+
+type ServiceAdapter struct {
+	I informers_v1.ServiceInformer
+}
+func (c *ServiceAdapter) CheckSource(resource interface{}) string {
+	r := resource.(*v1.Service)
+	return fmt.Sprintf("%s.service.%s", r.ObjectMeta.Name, r.Namespace)
+}
+func (c *ServiceAdapter) CheckConfigs(resource interface{}) (string, bool) {
+	v, ok := resource.(*v1.Service).Annotations[CheckAnnotation]
+	return v, ok
+}
+func (c *ServiceAdapter) Informer() cache.SharedInformer {
+	return c.I.Informer()
+}
+func (c *ServiceAdapter) Type() string {
+	return "service"
+}
+func (c *ServiceAdapter) DeregisterDefault() bool {
 	return false
 }

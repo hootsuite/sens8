@@ -16,7 +16,6 @@ import (
 type HsHealthCheck struct {
 	BaseCheck
 	url         *string
-	pod         *v1.Pod
 	resource    interface{}
 	commandLine *flag.FlagSet
 }
@@ -51,7 +50,6 @@ func (dh *HsHealthCheck) Usage() CheckUsage {
 }
 
 func (h *HsHealthCheck) Update(resource interface{}) {
-	h.pod = resource.(*v1.Pod)
 	h.resource = resource
 }
 

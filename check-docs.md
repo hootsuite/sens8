@@ -47,4 +47,23 @@ Example: `hs_healthcheck url=http://:::POD_IP::::8080/status/dependencies`
 ```
 
 
+### `http`
+
+**Resources**: pod, service
+
+Takes a URL and checks for a 200 response (that matches a pattern, if given).
+Example: Make a GET request to a pod and expect a 200 response:
+`http --url=http://:::POD_IP::::8080/status/health`
+
+```
+  -d, --body string          Send a data body string with the request
+  -X, --method string        Specify a GET, POST, or PUT operation; defaults to GET (default "GET")
+  -b, --response-bytes int   Print BYTES of the output (default 256)
+  -O, --response-code int    Check for a specific response code (default 200)
+  -u, --url string           url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CUSTER_IP::: gets replaced by the service's ip
+  -x, --user-agent string    Specify a USER-AGENT (default "Sens8-HTTP-Check")
+
+```
+
+
 
