@@ -1,17 +1,18 @@
 package check
 
 import (
-	"fmt"
-	"time"
-	"reflect"
-	"strings"
 	"bytes"
+	"crypto/tls"
+	"fmt"
+	"github.com/hootsuite/sens8/util"
+	flag "github.com/spf13/pflag"
 	"io"
 	"io/ioutil"
-	"net/http"
-	flag "github.com/spf13/pflag"
 	"k8s.io/client-go/pkg/api/v1"
-	"github.com/hootsuite/sens8/util"
+	"net/http"
+	"reflect"
+	"strings"
+	"time"
 )
 
 type Http struct {
@@ -20,11 +21,23 @@ type Http struct {
 	method         *string
 	body           *string
 	ua             *string
+	insecure       *bool
 	response_code  *int
 	response_bytes *int64
 	pod            *v1.Pod
 	resource       interface{}
 	commandLine    *flag.FlagSet
+	client         *http.Client
+}
+
+// insecureClient has SSL validation turned off
+var insecureClient *http.Client
+
+func init() {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	insecureClient = &http.Client{Transport: tr}
 }
 
 //NewDeploymentStatus creates a new deployment health check
@@ -40,12 +53,12 @@ func NewHttp(config CheckConfig) (Check, error) {
 	h.ua = commandLine.StringP("user-agent", "x", "Sens8-HTTP-Check", "Specify a USER-AGENT")
 	h.response_code = commandLine.IntP("response-code", "O", 200, "Check for a specific response code")
 	h.response_bytes = commandLine.Int64P("response-bytes", "b", 256, "Print BYTES of the output")
+	h.insecure = commandLine.BoolP("insecure", "k", false, "Enable insecure SSL connections")
 
 	// @todo - implement full set of args. args should follow closely the standard check-http.rb. not all may apply
 	// @todo - https://github.com/sensu-plugins/sensu-plugins-http/blob/master/bin/check-http.rb
 	//h.header = commandLine.StringP("header", "H", "", "Send one or more comma-separated headers with the request")
 	//h.ssl = commandLine.BoolP("ssl", "s", false, "Enabling SSL connections")
-	//h.insecure = commandLine.BoolP("insecure", "k", false, "Enabling insecure connections")
 	//h.user = commandLine.StringP("username", "U", "", "A username to connect as")
 	//h.password = commandLine.StringP("password", "a", "", "A password to use for the username")
 	//h.cert = commandLine.StringP("cert", "c", "", "Cert FILE to use")
@@ -68,16 +81,22 @@ func NewHttp(config CheckConfig) (Check, error) {
 	if *h.url == "" {
 		fmt.Errorf("--url cannot be empty")
 	}
+
+	h.client = http.DefaultClient
+	if h.insecure != nil && *h.insecure == true {
+		h.client = insecureClient
+	}
+
 	return &h, nil
 }
 
-func (dh *Http) Usage() CheckUsage {
+func (h *Http) Usage() CheckUsage {
 	d := "Takes a URL and checks for a 200 response (that matches a pattern, if given).\n"
 	d += "Example: Make a GET request to a pod and expect a 200 response:\n"
 	d += "`http --url=http://:::POD_IP::::8080/status/health`"
 	return CheckUsage{
 		Description: d,
-		Flags: dh.commandLine.FlagUsages(),
+		Flags:       h.commandLine.FlagUsages(),
 	}
 }
 
@@ -92,7 +111,7 @@ func (h *Http) Execute() (CheckResult, error) {
 
 	// @todo cast based on resource "apiVersion"
 	t := reflect.TypeOf(h.resource).String()
-	t = t[strings.LastIndex(t, ".") + 1:]
+	t = t[strings.LastIndex(t, ".")+1:]
 	switch t {
 	case "Pod":
 		pod := h.resource.(*v1.Pod)
@@ -113,7 +132,7 @@ func (h *Http) Execute() (CheckResult, error) {
 	req.Header.Add("User-Agent", *h.ua)
 
 	// make the request
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := h.client.Do(req)
 	if err != nil {
 		return result, err
 	}
