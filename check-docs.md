@@ -57,6 +57,7 @@ Example: Make a GET request to a pod and expect a 200 response:
 
 ```
   -d, --body string          Send a data body string with the request
+  -k, --insecure             Enable insecure SSL connections
   -X, --method string        Specify a GET, POST, or PUT operation; defaults to GET (default "GET")
   -b, --response-bytes int   Print BYTES of the output (default 256)
   -O, --response-code int    Check for a specific response code (default 200)
