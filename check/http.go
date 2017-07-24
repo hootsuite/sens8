@@ -47,7 +47,7 @@ func NewHttp(config CheckConfig) (Check, error) {
 
 	// process flags
 	commandLine := flag.NewFlagSet(config.Id, flag.ContinueOnError)
-	h.url = commandLine.StringP("url", "u", "", "url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CUSTER_IP::: gets replaced by the service's ip")
+	h.url = commandLine.StringP("url", "u", "", "url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CLUSTER_IP::: gets replaced by the service's ip")
 	h.method = commandLine.StringP("method", "X", "GET", "Specify a GET, POST, or PUT operation; defaults to GET")
 	h.body = commandLine.StringP("body", "d", "", "Send a data body string with the request")
 	h.ua = commandLine.StringP("user-agent", "x", "Sens8-HTTP-Check", "Specify a USER-AGENT")
@@ -119,7 +119,7 @@ func (h *Http) Execute() (CheckResult, error) {
 		url = strings.Replace(url, ":::HOST_IP:::", pod.Status.HostIP, -1)
 	case "Service":
 		service := h.resource.(*v1.Service)
-		url = strings.Replace(url, ":::CUSTER_IP:::", service.Spec.ClusterIP, -1)
+		url = strings.Replace(url, ":::CLUSTER_IP:::", service.Spec.ClusterIP, -1)
 	default:
 		return result, fmt.Errorf("resource type is unknown")
 	}
