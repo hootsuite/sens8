@@ -27,7 +27,7 @@ func NewHsHealthCheck(config CheckConfig) (Check, error) {
 
 	// process flags
 	commandLine := flag.NewFlagSet(config.Id, flag.ContinueOnError)
-	h.url = commandLine.StringP("url", "u", "", "url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CUSTER_IP::: gets replaced by the service's ip")
+	h.url = commandLine.StringP("url", "u", "", "url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CLUSTER_IP::: gets replaced by the service's ip")
 	h.commandLine = commandLine
 	if err := commandLine.Parse(config.Argv[1:]); err != nil {
 		return &h, nil
