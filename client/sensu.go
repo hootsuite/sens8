@@ -1,20 +1,20 @@
 package client
 
 import (
-	"time"
-	"io/ioutil"
 	"encoding/json"
 	"github.com/golang/glog"
-	"github.com/hootsuite/sensu-go/sensu/transport"
-	"github.com/hootsuite/sensu-go/sensu/transport/rabbitmq"
 	"github.com/hootsuite/sens8/check"
 	"github.com/hootsuite/sens8/util"
+	"github.com/hootsuite/sensu-go/sensu/transport"
+	"github.com/hootsuite/sensu-go/sensu/transport/rabbitmq"
+	"io/ioutil"
+	"time"
 )
 
 const (
 	connectionTimeout = 5 * time.Second
 	keepaliveInterval = 20 * time.Second
-	version = "0.28.4" // version is based on what documentation version was referenced
+	version           = "0.28.4" // version is based on what documentation version was referenced
 )
 
 type SensuConfig struct {
@@ -30,13 +30,13 @@ type SensuClientConfig struct {
 }
 
 type SensuClientInfo struct {
-	Name           string              `json:"name"`
-	Address        string              `json:"address"`
-	Subscriptions  []string            `json:"subscriptions"`
-	Deregister     *bool               `json:"deregister"`
-	Deregistration *SensuRegistration  `json:"deregistration"`
-	Registration   *SensuRegistration  `json:"registration"`
-	extraFields	map[string]interface{} `json:"-"`
+	Name           string                 `json:"name"`
+	Address        string                 `json:"address"`
+	Subscriptions  []string               `json:"subscriptions"`
+	Deregister     *bool                  `json:"deregister"`
+	Deregistration *SensuRegistration     `json:"deregistration"`
+	Registration   *SensuRegistration     `json:"registration"`
+	extraFields    map[string]interface{} `json:"-"`
 }
 
 type SensuRegistration struct {
@@ -47,9 +47,9 @@ type KeepAlive struct {
 	Handler    string    `json:"handler,omitempty"`
 	Handlers   *[]string `json:"handlers,omitempty"`
 	Thresholds *struct {
-		Warning  int       `json:"warning,omitempty"`
-		Critical int       `json:"critical,omitempty"`
-	}                    `json:"thresholds,omitempty"`
+		Warning  int `json:"warning,omitempty"`
+		Critical int `json:"critical,omitempty"`
+	} `json:"thresholds,omitempty"`
 }
 
 type KeepAliveResponse struct {
@@ -60,8 +60,8 @@ type KeepAliveResponse struct {
 }
 
 type SensuClient struct {
-	Config     SensuConfig
-	Transport  transport.Transport
+	Config    SensuConfig
+	Transport transport.Transport
 }
 
 // NewSensuClient create a new client based on the confFile
@@ -98,7 +98,7 @@ func NewSensuClient(confFile string) (SensuClient, error) {
 
 	conf.ClientConfig = SensuClientConfig{
 		SensuClientInfo: ci,
-		Keepalive: ka,
+		Keepalive:       ka,
 	}
 
 	s.Config = conf
@@ -139,11 +139,17 @@ func (c *SensuClient) Start(stopCh chan struct{}) {
 // StartKeepalive starts the keepalive heartbeats for sens8 itself which registers it in sensu
 func (c *SensuClient) StartKeepalive(stopCh chan struct{}) {
 	t := time.Tick(keepaliveInterval)
-	c.postKeepAlive()
+
+	if err := c.postKeepAlive(); err != nil {
+		glog.Errorf("error sending keepalive: %s", err.Error())
+	}
+
 	for {
 		select {
 		case <-t:
-			c.postKeepAlive()
+			if err := c.postKeepAlive(); err != nil {
+				glog.Errorf("error sending keepalive: %s", err.Error())
+			}
 		case <-stopCh:
 			return
 		}
@@ -164,14 +170,14 @@ func (c *SensuClient) PostCheckResult(result check.CheckResult) error {
 // postKeepAlive sends out keepalive heartbeats
 func (c *SensuClient) postKeepAlive() error {
 	res := KeepAliveResponse{
-		ClientInfo: c.Config.ClientConfig.SensuClientInfo,
+		ClientInfo:    c.Config.ClientConfig.SensuClientInfo,
 		KeepAliveConf: c.Config.ClientConfig.Keepalive,
-		Timestamp: time.Now().Unix(),
-		Version: version,
+		Timestamp:     time.Now().Unix(),
+		Version:       version,
 	}
 
 	//buf, err := json.Marshal(res);
-	buf, err := res.Marshal();
+	buf, err := res.Marshal()
 	if err != nil {
 		return err
 	}
@@ -188,7 +194,7 @@ func (c *SensuClient) Deregister(client string) error {
 	}
 
 	res := check.NewCheckResultFromConfig(check.CheckConfig{
-		Name: "deregistration",
+		Name:    "deregistration",
 		Handler: &handler,
 	})
 	res.Output = "client initiated deregistration"

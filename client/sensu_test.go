@@ -1,18 +1,18 @@
 package client
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"encoding/json"
 	"github.com/hootsuite/sens8/check"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"testing"
 )
 
 var (
 	defaults = map[string]interface{}{
 		"occurrences": float64(3),
-		"handlers": []interface{}{"default"},
-		"pager_team": "production_engineering",
+		"handlers":    []interface{}{"default"},
+		"pager_team":  "production_engineering",
 	}
 )
 
@@ -24,28 +24,28 @@ type MockTransport struct {
 	message      []byte
 }
 
-func (m *MockTransport)  Connect() error {
+func (m *MockTransport) Connect() error {
 	m.connected = true
 	return nil
 }
-func (m *MockTransport)  IsConnected() bool {
+func (m *MockTransport) IsConnected() bool {
 	return m.connected
 }
-func (m *MockTransport)  Close() error {
+func (m *MockTransport) Close() error {
 	m.connected = false
 	return nil
 }
-func (m *MockTransport)  Publish(exchangeType, exchangeName, key string, message []byte) error {
+func (m *MockTransport) Publish(exchangeType, exchangeName, key string, message []byte) error {
 	m.exchangeType = exchangeType
 	m.exchangeName = exchangeName
 	m.key = key
 	m.message = message
 	return nil
 }
-func (m *MockTransport)  Subscribe(key, exchangeName, queueName string, messageChan chan []byte, stopChan chan bool) error {
+func (m *MockTransport) Subscribe(key, exchangeName, queueName string, messageChan chan []byte, stopChan chan bool) error {
 	return nil
 }
-func (m *MockTransport)  GetClosingChan() chan bool {
+func (m *MockTransport) GetClosingChan() chan bool {
 	return make(chan bool)
 }
 
@@ -162,10 +162,10 @@ func TestSensuClient_PostCheckResult(t *testing.T) {
 
 	source := "test_client"
 	res := check.NewCheckResultFromConfig(check.CheckConfig{
-		Name: "test_check",
-		Command: "foo",
+		Name:     "test_check",
+		Command:  "foo",
 		Interval: 1,
-		Source: &source,
+		Source:   &source,
 	})
 	res.Output = "test_output"
 	res.Status = check.WARN
