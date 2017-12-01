@@ -68,7 +68,7 @@ func (h *HsHealthCheck) Execute() (CheckResult, error) {
 		url = strings.Replace(url, ":::HOST_IP:::", pod.Status.HostIP, -1)
 	case "Service":
 		service := h.resource.(*v1.Service)
-		url = strings.Replace(url, ":::CUSTER_IP:::", service.Spec.ClusterIP, -1)
+		url = strings.Replace(url, ":::CLUSTER_IP:::", service.Spec.ClusterIP, -1)
 	default:
 		return result, fmt.Errorf("resource type is unknown")
 	}
