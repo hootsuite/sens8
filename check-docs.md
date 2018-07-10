@@ -50,8 +50,8 @@ Example: `hs_healthcheck url=http://:::POD_IP::::8080/status/dependencies`
 
 **Resources**: pod, service
 
-Make an http request to the pod or service and check the status returned in the following format: https://hootsuite.github.io/health-checks-api/#status-aggregate-get. (but the v2 version)
-Example: `hs_healthcheck_v2 url=http://:::POD_IP::::8080/status/v2/dependencies`
+Make an http request to the pod or service and check the status returned in the following format: https://hootsuite.github.io/health-checks-api/#status-aggregate-get.
+Example: `hs_healthcheck_v2 url=http://:::POD_IP::::8080/status/v2/aggregate`
 
 ```
   -u, --url string   url to query. :::POD_IP::: gets replace with the pod's IP. :::HOST_IP::: gets replaced with the pod's host ip. :::CLUSTER_IP::: gets replaced by the service's ip

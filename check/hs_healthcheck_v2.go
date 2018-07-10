@@ -85,21 +85,20 @@ func (h *HsHealthCheckV2) Execute() (CheckResult, error) {
 		return result, err
 	}
 
-	var status struct{
-		description string
-		result string
-		details string
+	type status struct{
+		Result string `json:"result"`
 	}
-	err = json.Unmarshal(buf, &status)
+	var statusResponse = status{}
+	err = json.Unmarshal(buf, &statusResponse)
 
 	// determine status code
-	if err != nil {
+	if err != nil  {
 		result.Status = CRITICAL
 	} else {
-		switch status.result {
-		case "OK": result.Status = OK
-		case "WARN": result.Status = WARN
-		case "CRIT": result.Status = CRITICAL
+		switch statusResponse.Result {
+			case "OK": result.Status = OK
+			case "WARN": result.Status = WARN
+			case "CRIT", "": result.Status = CRITICAL
 		}
 	}
 
