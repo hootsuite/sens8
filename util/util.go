@@ -1,8 +1,9 @@
 package util
 
 import (
-	"time"
 	"encoding/json"
+	"time"
+
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -52,14 +53,5 @@ func PadRight(str, pad string, length int) string {
 			return str
 		}
 		str += pad
-	}
-}
-
-func PadLeft(str, pad string, length int) string {
-	for {
-		if len(str) >= length {
-			return str
-		}
-		str = pad + str
 	}
 }

@@ -2,8 +2,9 @@ package util_test
 
 import (
 	"testing"
-	"github.com/stretchr/testify/assert"
+
 	"github.com/hootsuite/sens8/util"
+	"github.com/stretchr/testify/assert"
 
 	"time"
 )
@@ -30,10 +31,10 @@ func TestDecodeWithExtraFields(t *testing.T) {
 func TestJsonStructToMap(t *testing.T) {
 	assert := assert.New(t)
 
-	s := struct{
+	s := struct {
 		Defined string `json:"defined"`
 		Default string `json:"default"`
-		Blank string `json:"-"`
+		Blank   string `json:"-"`
 	}{
 		Defined: "overridden",
 		Default: "defaultval",

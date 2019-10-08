@@ -7,17 +7,16 @@ help: ## List targets & descriptions
 all: test build build-image ## compile & build docker image
 
 deps: ## install deps into vendor with golang dep
-	go get github.com/golang/dep/cmd/dep
-	dep ensure -v
+	go mod download
 
 build: ## compile main go app
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o sens8
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o sens8 ./cmd/service
 
 build-image: ## create docker image
 	docker build -t $(IMAGE):latest .
 
 test: ## run tests & coverage
-	go test -v -cover $$(go list ./... | grep -v /vendor/)
+	go test -v -cover $$(go list ./...)
 
 docs: ## generate check command docs
-	go run sens8.go -check-docs-md > check-docs.md
+	go run ./cmd/service/main.go -check-docs-md > check-docs.md
