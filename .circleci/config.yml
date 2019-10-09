@@ -1,7 +1,6 @@
 version: 2
 jobs:
   build:
-    working_directory: /github.com/hootsuite/sens8
     docker:
       - image: circleci/golang:1.13
     steps:
